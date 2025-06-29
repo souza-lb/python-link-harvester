@@ -43,9 +43,6 @@ chmod +x get-link-python
 
 # 4. Execute o script
 ./get-link-python
-
-# (Opcional) Mova para seu PATH pessoal
-mv get-link-python ~/.local/bin/
 ```
 
 ### ▶️ Execução Básica
