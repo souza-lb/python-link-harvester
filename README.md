@@ -25,7 +25,7 @@ O **Python Link Harvester** é um utilitário em shell script que automatiza a b
 No terminal com sua conta de usuário comum execute:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/seu-usuario/python-link-harvester/main/get-link-python | bash
+wget -qO- https://raw.githubusercontent.com/souza-lb/python-link-harvester/main/get-link-python | bash
 ```
 
 ### 📥 Clonar e executar via Git
