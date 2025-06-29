@@ -32,7 +32,7 @@ URL_BASE="https://www.python.org/downloads/source/"
 EXTENSION="tar.xz"
 
 # Nome do arquivo de saída para os links
-OUTPUT_FILE="links-python.txt"
+OUTPUT_FILE="link-python.txt"
 
 # Limpar o arquivo de saída (cria novo ou sobrescreve existente)
 > "$OUTPUT_FILE"
