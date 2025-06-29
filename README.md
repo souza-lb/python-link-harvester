@@ -33,7 +33,7 @@ Para personalização e controle total:
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/seu-usuario/python-link-harvester.git
+git clone https://github.com/souza-lb/python-link-harvester.git
 
 # 2. Acesse o diretório
 cd python-link-harvester
