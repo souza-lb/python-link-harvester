@@ -1,0 +1,106 @@
+#!/bin/bash
+
+# python-link-harvester ( Coletor de link do python )
+# Autor: Leonardo Bruno
+# Contato: souzalb@proton.me
+# Versão: 1.0
+# Data: 29/06/2025
+
+# Verifica se o lynx está instalado
+if ! command -v lynx &> /dev/null; then
+    echo "❌ Erro: O comando 'lynx' não está instalado."
+    echo "Por favor instale o lynx para continuar:"
+    echo ""
+    echo "📦 Para sistemas baseados em Debian/Ubuntu:"
+    echo "  sudo apt-get install lynx"
+    echo ""
+    echo "📦 Para sistemas baseados em RHEL/CentOS:"
+    echo "  sudo yum install lynx"
+    echo ""
+    echo "📦 Para sistemas baseados em Arch:"
+    echo "  sudo pacman -S lynx"
+    echo ""
+    echo "📦 Para macOS (via Homebrew):"
+    echo "  brew install lynx"
+    exit 1
+fi
+
+# URL base para downloads do código fonte do Python
+URL_BASE="https://www.python.org/downloads/source/"
+
+# Extensão do arquivo desejado (código fonte compactado)
+EXTENSION="tar.xz"
+
+# Nome do arquivo de saída para os links
+OUTPUT_FILE="links-python.txt"
+
+# Limpar o arquivo de saída (cria novo ou sobrescreve existente)
+> "$OUTPUT_FILE"
+
+# Mensagens iniciais para o usuário
+echo "🚀 Iniciando busca em: $URL_BASE"
+echo "🔍 Procurando por arquivos .${EXTENSION}"
+echo "⏳ Aguarde alguns instantes..."
+echo "📁 Processando: ${URL_BASE}"
+
+temp_links=$(mktemp)
+temp_sorted=$(mktemp)
+
+# Coletar links usando lynx - navegador baseado em texto
+# lynx: Renderiza a página e lista todos os links
+# grep: Filtra apenas links que terminam com a extensão desejada
+# awk: Extrai apenas a URL (segunda coluna do output do lynx)
+# sort -u: Remove URLs duplicadas
+lynx -dump -listonly "$URL_BASE" | grep -E "$EXTENSION$" | awk '{print $2}' | sort -u > "$temp_links"
+
+# Faz a contagem dos links encontrados
+total_files=$(wc -l < "$temp_links")
+
+# Processar cada link para extrair a versão do Python
+while IFS= read -r url; do
+    # Extrair apenas o nome do arquivo da URL
+    filename=$(basename "$url")
+    
+    # Usar expressão regular para extrair a versão
+    # Padrão esperado: Python-<versão>.tar.xz
+    if [[ $filename =~ Python-(.*).tar.xz ]]; then
+        # Captura a parte entre "Python-" e ".tar.xz"
+        version="${BASH_REMATCH[1]}"
+        
+        # Converter versão para formato ordenável:
+        # Substitui pontos por espaços (ex: "3.9.1" → "3 9 1")
+        sortable_version=$(echo "$version" | tr '.' ' ')
+        
+        # Formatar saída: versão ordenável + tab + URL
+        echo -e "$sortable_version\t$url"
+    fi
+done < "$temp_links" > "$temp_sorted"
+
+# Ordenar numericamente por versão:
+# -k1,1n: Ordena primeira parte numérica (major version)
+# -k2,2n: Ordena segunda parte (minor version)
+# -k3,3n: Ordena terceira parte (patch version)
+# -k4,4n: Ordena quarta parte (caso exista, ex: rc1, alpha2)
+sort -k1,1n -k2,2n -k3,3n -k4,4n "$temp_sorted" | cut -f2- > "$OUTPUT_FILE"
+
+# Contar arquivos após processamento
+total_files_after=$(wc -l < "$OUTPUT_FILE")
+
+# Mostrar links ordenados ao usuário
+echo ""
+echo "📋 Lista de links ordenados:"
+while IFS= read -r link; do
+    echo "  ✅ $link"
+done < "$OUTPUT_FILE"
+
+# Remover arquivos temporários
+rm "$temp_links" "$temp_sorted"
+
+# Exibir relatório final
+echo ""
+echo "✅ Busca concluída!"
+echo "================================="
+echo "📦 Arquivos encontrados:    $total_files"
+echo "🔧 Após remover duplicatas: $total_files_after"
+echo "💾 Links salvos em:         $OUTPUT_FILE"
+echo "================================="
