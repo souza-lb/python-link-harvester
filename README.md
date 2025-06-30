@@ -79,15 +79,15 @@ EXTENSION="tgz"
 
 ## ⚠️ Dependências
 
-### 📦 Instalação do Lynx
-O script requer `lynx` para funcionar. Instale conforme seu sistema:
+### 📦 Instalação do CURL
+O script requer `curl` para funcionar. Instale conforme seu sistema:
 
 | Sistema Operacional      | Comando de Instalação       |
 |--------------------------|-----------------------------|
-| **Debian/Ubuntu**        | `sudo apt-get install lynx` |
-| **RHEL/CentOS**          | `sudo yum install lynx`     |
-| **Arch Linux**           | `sudo pacman -S lynx`       |
-| **macOS (Homebrew)**     | `brew install lynx`         |
+| **Debian/Ubuntu**        | `sudo apt-get install curl` |
+| **RHEL/CentOS**          | `sudo yum install curl`     |
+| **Arch Linux**           | `sudo pacman -S curl`       |
+| **macOS (Homebrew)**     | `brew install curl`         |
 
 ## 🧩 Detalhes Técnicos
 
