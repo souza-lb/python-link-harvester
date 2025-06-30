@@ -1,27 +1,27 @@
 #!/bin/bash
 
-# python-link-harvester ( Coletor de link do python )
+# python-link-harvester
 # Autor: Leonardo Bruno
 # Contato: souzalb@proton.me
 # Versão: 1.0
-# Data: 29/06/2025
+# Data: 30/06/2025
 
-# Verifica se o lynx está instalado
-if ! command -v lynx &> /dev/null; then
-    echo "❌ Erro: O comando 'lynx' não está instalado."
-    echo "Por favor instale o lynx para continuar:"
+# Verifica se o curl está instalado
+if ! command -v curl &> /dev/null; then
+    echo "❌ Erro: O comando 'curl' não está instalado."
+    echo "Por favor instale o curl para continuar:"
     echo ""
     echo "📦 Para sistemas baseados em Debian/Ubuntu:"
-    echo "  sudo apt-get install lynx"
+    echo "  sudo apt-get install curl"
     echo ""
     echo "📦 Para sistemas baseados em RHEL/CentOS:"
-    echo "  sudo yum install lynx"
+    echo "  sudo yum install curl"
     echo ""
     echo "📦 Para sistemas baseados em Arch:"
-    echo "  sudo pacman -S lynx"
+    echo "  sudo pacman -S curl"
     echo ""
     echo "📦 Para macOS (via Homebrew):"
-    echo "  brew install lynx"
+    echo "  brew install curl"
     exit 1
 fi
 
@@ -46,57 +46,58 @@ echo "📁 Processando: ${URL_BASE}"
 temp_links=$(mktemp)
 temp_sorted=$(mktemp)
 
-# Coletar links usando lynx - navegador baseado em texto
-# lynx: Renderiza a página e lista todos os links
-# grep: Filtra apenas links que terminam com a extensão desejada
-# awk: Extrai apenas a URL (segunda coluna do output do lynx)
-# sort -u: Remove URLs duplicadas
-lynx -dump -listonly "$URL_BASE" | grep -E "$EXTENSION$" | awk '{print $2}' | sort -u > "$temp_links"
+# Coletar links usando curl
+# -s: Modo silencioso (sem progresso)
+# -L: Segue redirecionamentos
+# --compressed : Habilita a compactação de dados na transferência
+# Extrai todos os links da página que terminam com a extensão desejada
+curl -s --compressed -L "$URL_BASE" | grep -oP 'href="\K[^"]*\.tar\.xz' | sort -u > "$temp_links"
 
 # Faz a contagem dos links encontrados
 total_files=$(wc -l < "$temp_links")
 
 # Processar cada link para extrair a versão do Python
 while IFS= read -r url; do
-    # Extrair apenas o nome do arquivo da URL
+    # Normaliza URLs relativas para absolutas
+    if [[ $url == /* ]]; then
+        url="https://www.python.org$url"
+    elif [[ $url != http* ]]; then
+        url="${URL_BASE%/source/}/$url"
+    fi
+    
+    # Extrai apenas o nome do arquivo da URL
     filename=$(basename "$url")
     
-    # Usar expressão regular para extrair a versão
-    # Padrão esperado: Python-<versão>.tar.xz
+    # Usa expressão regular para extrair a versão
     if [[ $filename =~ Python-(.*).tar.xz ]]; then
         # Captura a parte entre "Python-" e ".tar.xz"
         version="${BASH_REMATCH[1]}"
         
-        # Converter versão para formato ordenável:
-        # Substitui pontos por espaços (ex: "3.9.1" → "3 9 1")
+        # Converte versão para formato ordenável
         sortable_version=$(echo "$version" | tr '.' ' ')
         
-        # Formatar saída: versão ordenável + tab + URL
+        # Formata saída: versão ordenável + tab + URL
         echo -e "$sortable_version\t$url"
     fi
 done < "$temp_links" > "$temp_sorted"
 
-# Ordenar numericamente por versão:
-# -k1,1n: Ordena primeira parte numérica (major version)
-# -k2,2n: Ordena segunda parte (minor version)
-# -k3,3n: Ordena terceira parte (patch version)
-# -k4,4n: Ordena quarta parte (caso exista, ex: rc1, alpha2)
+# Ordena numericamente por versão
 sort -k1,1n -k2,2n -k3,3n -k4,4n "$temp_sorted" | cut -f2- > "$OUTPUT_FILE"
 
-# Contar arquivos após processamento
+# Conta arquivos após processamento
 total_files_after=$(wc -l < "$OUTPUT_FILE")
 
-# Mostrar links ordenados ao usuário
+# Mostra links ordenados ao usuário
 echo ""
 echo "📋 Lista de links ordenados:"
 while IFS= read -r link; do
     echo "  ✅ $link"
 done < "$OUTPUT_FILE"
 
-# Remover arquivos temporários
+# Remove arquivos temporários
 rm "$temp_links" "$temp_sorted"
 
-# Exibir relatório final
+# Exibe relatório final
 echo ""
 echo "✅ Busca concluída!"
 echo "================================="
