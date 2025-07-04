@@ -79,15 +79,15 @@ EXTENSION="tgz"
 
 ## ⚠️ Dependências
 
-### 📦 Instalação do CURL
-O script requer `curl` para funcionar. Instale conforme seu sistema:
+### 📦 Instalação do wget
+O script requer `wget` para funcionar. Instale conforme seu sistema:
 
 | Sistema Operacional      | Comando de Instalação       |
 |--------------------------|-----------------------------|
-| **Debian/Ubuntu**        | `sudo apt-get install curl` |
-| **RHEL/CentOS**          | `sudo yum install curl`     |
-| **Arch Linux**           | `sudo pacman -S curl`       |
-| **macOS (Homebrew)**     | `brew install curl`         |
+| **Debian/Ubuntu**        | `sudo apt-get install wget` |
+| **RHEL/CentOS**          | `sudo yum install wget`     |
+| **Arch Linux**           | `sudo pacman -S wget`       |
+| **macOS (Homebrew)**     | `brew install wget`         |
 
 ## 🧩 Detalhes Técnicos
 
