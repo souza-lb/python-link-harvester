@@ -4,24 +4,24 @@
 # Autor: Leonardo Bruno
 # Contato: souzalb@proton.me
 # Versão: 1.0
-# Data: 30/06/2025
+# Data: 04/07/2025
 
-# Verifica se o curl está instalado
-if ! command -v curl &> /dev/null; then
-    echo "❌ Erro: O comando 'curl' não está instalado."
-    echo "Por favor instale o curl para continuar:"
+# Verifica se o wget está instalado
+if ! command -v wget &> /dev/null; then
+    echo "❌ Erro: O comando 'wget' não está instalado."
+    echo "Por favor instale o wget para continuar:"
     echo ""
     echo "📦 Para sistemas baseados em Debian/Ubuntu:"
-    echo "  sudo apt-get install curl"
+    echo "  sudo apt-get install wget"
     echo ""
     echo "📦 Para sistemas baseados em RHEL/CentOS:"
-    echo "  sudo yum install curl"
+    echo "  sudo yum install wget"
     echo ""
     echo "📦 Para sistemas baseados em Arch:"
-    echo "  sudo pacman -S curl"
+    echo "  sudo pacman -S wget"
     echo ""
     echo "📦 Para macOS (via Homebrew):"
-    echo "  brew install curl"
+    echo "  brew install wget"
     exit 1
 fi
 
@@ -46,12 +46,10 @@ echo "📁 Processando: ${URL_BASE}"
 temp_links=$(mktemp)
 temp_sorted=$(mktemp)
 
-# Coletar links usando curl
-# -s: Modo silencioso (sem progresso)
-# -L: Segue redirecionamentos
-# --compressed : Habilita a compactação de dados na transferência
-# Extrai todos os links da página que terminam com a extensão desejada
-curl -s --compressed -L "$URL_BASE" | grep -oP 'href="\K[^"]*\.tar\.xz' | sort -u > "$temp_links"
+# Coletar links usando wget
+# -q: Modo silencioso
+# -O -: Saída para stdout
+wget -qO- --compress=auto "$URL_BASE" | grep -oP 'href="\K[^"]*\.tar\.xz' | sort -u > "$temp_links"
 
 # Faz a contagem dos links encontrados
 total_files=$(wc -l < "$temp_links")
